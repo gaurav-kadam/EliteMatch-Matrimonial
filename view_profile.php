@@ -110,7 +110,7 @@ if($result && mysqli_num_rows($result) > 0){
   <div class="container">
     <!-- Profile Hero -->
     <div class="em-profile-hero">
-      <img src="<?php echo !empty($pic1) ? "profile/$profileid/$pic1" : 'https://ui-avatars.com/api/?name='.urlencode("$fname $lname").'&background=8B5CF6&color=fff&size=200'; ?>" alt="<?php echo "$fname $lname"; ?>" class="em-profile-avatar">
+      <img src="<?php echo !empty($pic1) ? "profile/$profileid/" . rawurlencode($pic1) : 'https://ui-avatars.com/api/?name='.urlencode("$fname $lname").'&background=8B5CF6&color=fff&size=200'; ?>" alt="<?php echo "$fname $lname"; ?>" class="em-profile-avatar">
       <div class="em-profile-hero-info">
         <span class="profile-id-badge"><i class="fas fa-id-badge me-1"></i> EM<?php echo $profileid; ?></span>
         <h2><?php echo "$fname $lname"; ?></h2>
@@ -274,7 +274,7 @@ if($result && mysqli_num_rows($result) > 0){
               <?php foreach([$pic1,$pic2,$pic3,$pic4] as $pic): ?>
               <?php if(!empty($pic)): ?>
               <div class="col-6">
-                <img src="profile/<?php echo $profileid; ?>/<?php echo $pic; ?>" alt="Photo" style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius-sm);">
+                <img src="profile/<?php echo $profileid; ?>/<?php echo rawurlencode($pic); ?>" alt="Photo" style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius-sm);">
               </div>
               <?php endif; ?>
               <?php endforeach; ?>

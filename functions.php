@@ -285,7 +285,7 @@ function processprofile_form($id){
 		$heightInt = intval($height);
 		$brosInt = intval($bros);
 		$sisInt = intval($sis);
-		mysqli_stmt_bind_param($stmt, "isssssssssssssssssssssiisssssssssiiis",
+		mysqli_stmt_bind_param($stmt, "issssssssssssssssssssiisssssssssiis",
 			$id, $email, $age, $sex, $religion, $caste, $subcaste,
 			$district, $state, $country, $maritalstatus, $profileby,
 			$education, $edudescr, $fname, $lname,

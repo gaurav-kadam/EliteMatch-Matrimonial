@@ -143,7 +143,7 @@ $result = search();
                 $result2 = mysqlexec($sql2);
                 $pic = 'images/default-avatar.png';
                 if($result2 && $photo = mysqli_fetch_assoc($result2)){
-                  if(!empty($photo['pic1'])) $pic = "profile/$profid/".$photo['pic1'];
+                  if(!empty($photo['pic1'])) $pic = "profile/$profid/".rawurlencode($photo['pic1']);
                 }
             ?>
               <div class="col-md-6">
