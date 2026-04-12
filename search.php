@@ -5,6 +5,8 @@ if(!isloggedin()){
   header("location:login.php");
   exit;
 }
+$currentUserId = intval($_SESSION['id']);
+$flashMessage = popFlashMessage();
 $result = search();
 ?>
 <!DOCTYPE html>
@@ -130,6 +132,11 @@ $result = search();
       <!-- Results -->
       <div class="col-lg-8">
         <div class="em-search-results">
+          <?php if($flashMessage): ?>
+          <div class="alert alert-<?php echo h($flashMessage['type']); ?> mb-4">
+            <i class="fas fa-circle-info me-2"></i><?php echo h($flashMessage['message']); ?>
+          </div>
+          <?php endif; ?>
           <?php if(isset($_POST['search'])): ?>
             <h4><i class="fas fa-users me-2" style="color:var(--primary)"></i>Search Results</h4>
             <div class="row g-3">
@@ -139,28 +146,47 @@ $result = search();
               while($row = mysqli_fetch_assoc($result)){
                 $count++;
                 $profid = intval($row['cust_id']);
-                $sql2 = "SELECT pic1 FROM photos WHERE cust_id=$profid";
-                $result2 = mysqlexec($sql2);
-                $pic = 'images/default-avatar.png';
-                if($result2 && $photo = mysqli_fetch_assoc($result2)){
-                  if(!empty($photo['pic1'])) $pic = "profile/$profid/".rawurlencode($photo['pic1']);
-                }
+                $displayName = getDisplayName($row);
+                $pic = getProfilePhotoUrl($profid, $row['pic1'] ?? '', $displayName);
+                $interactionState = getInteractionState($currentUserId, $profid);
             ?>
               <div class="col-md-6">
                 <div class="em-profile-card">
                   <div class="card-img-wrapper" style="height: 200px;">
-                    <img src="<?php echo $pic; ?>" alt="<?php echo h($row['firstname']); ?>">
+                    <img src="<?php echo $pic; ?>" alt="<?php echo h($displayName); ?>">
                   </div>
                   <div class="card-body">
                     <span class="profile-id">ID: EM<?php echo $profid; ?></span>
-                    <h5><?php echo h($row['firstname']) . ' ' . h($row['lastname']); ?></h5>
+                    <h5><?php echo h($displayName); ?></h5>
                     <p><i class="fas fa-birthday-cake"></i> <?php echo h($row['age']); ?> Yrs</p>
                     <p><i class="fas fa-pray"></i> <?php echo h($row['religion']); ?></p>
                     <p><i class="fas fa-map-marker-alt"></i> <?php echo h($row['state']) . ', ' . h($row['country']); ?></p>
                   </div>
                   <div class="card-footer">
                     <small class="text-muted"><?php echo h($row['occupation']); ?></small>
-                    <a href="view_profile.php?id=<?php echo $profid; ?>" class="btn-view">View</a>
+                    <div class="d-flex align-items-center gap-2">
+                      <?php if($interactionState['can_chat']): ?>
+                      <a href="chat.php?user=<?php echo $profid; ?>" class="btn btn-outline-primary rounded-pill btn-sm">
+                        <i class="fas fa-comments"></i>
+                      </a>
+                      <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'outgoing'): ?>
+                      <span class="em-badge em-badge-warm"><i class="fas fa-hourglass-half"></i> Sent</span>
+                      <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'incoming'): ?>
+                      <a href="requests.php" class="btn btn-outline-success rounded-pill btn-sm">
+                        <i class="fas fa-envelope-open-text"></i>
+                      </a>
+                      <?php else: ?>
+                      <form action="send_interest.php" method="post" class="d-inline">
+                        <?php echo renderCsrfField(); ?>
+                        <input type="hidden" name="profile_id" value="<?php echo $profid; ?>">
+                        <input type="hidden" name="redirect_to" value="view_profile.php?id=<?php echo $profid; ?>">
+                        <button type="submit" class="btn btn-outline-danger rounded-pill btn-sm">
+                          <i class="fas fa-heart"></i>
+                        </button>
+                      </form>
+                      <?php endif; ?>
+                      <a href="view_profile.php?id=<?php echo $profid; ?>" class="btn-view">View</a>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -10,13 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   writepartnerprefs($id);
 }
 
-// Get existing preferences
-$conn = getConn();
-$stmt = mysqli_prepare($conn, "SELECT * FROM partnerprefs WHERE custId=?");
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
-$prefResult = mysqli_stmt_get_result($stmt);
-$pref = mysqli_fetch_assoc($prefResult);
+// Always keep a preference row ready for the matcher.
+$pref = getPartnerPreferences($id, true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,19 +68,19 @@ $pref = mysqli_fetch_assoc($prefResult);
       <div class="em-form-section">
         <h4><i class="fas fa-pray"></i> Religion & Culture</h4>
         <div class="row g-3">
-          <div class="col-md-4"><label class="form-label">Religion</label><select name="religion" class="form-select"><option value="">Any</option><option value="Hindu">Hindu</option><option value="Muslim">Muslim</option><option value="Christian">Christian</option><option value="Sikh">Sikh</option><option value="Jain">Jain</option></select></div>
-          <div class="col-md-4"><label class="form-label">Caste</label><select name="caste" class="form-select"><option value="">Any</option><option value="General">General</option><option value="OBC">OBC</option><option value="SC">SC</option><option value="ST">ST</option></select></div>
-          <div class="col-md-4"><label class="form-label">Mother Tongue</label><select name="mothertounge" class="form-select"><option value="">Any</option><option value="Hindi">Hindi</option><option value="Marathi">Marathi</option><option value="English">English</option><option value="Tamil">Tamil</option><option value="Telugu">Telugu</option><option value="Malayalam">Malayalam</option></select></div>
+          <div class="col-md-4"><label class="form-label">Religion</label><select name="religion" class="form-select"><option value="" <?php echo ($pref && $pref['religion']=='')?'selected':''; ?>>Any</option><option value="Hindu" <?php echo ($pref && $pref['religion']=='Hindu')?'selected':''; ?>>Hindu</option><option value="Muslim" <?php echo ($pref && $pref['religion']=='Muslim')?'selected':''; ?>>Muslim</option><option value="Christian" <?php echo ($pref && $pref['religion']=='Christian')?'selected':''; ?>>Christian</option><option value="Sikh" <?php echo ($pref && $pref['religion']=='Sikh')?'selected':''; ?>>Sikh</option><option value="Jain" <?php echo ($pref && $pref['religion']=='Jain')?'selected':''; ?>>Jain</option></select></div>
+          <div class="col-md-4"><label class="form-label">Caste</label><select name="caste" class="form-select"><option value="" <?php echo ($pref && $pref['caste']=='')?'selected':''; ?>>Any</option><option value="General" <?php echo ($pref && $pref['caste']=='General')?'selected':''; ?>>General</option><option value="OBC" <?php echo ($pref && $pref['caste']=='OBC')?'selected':''; ?>>OBC</option><option value="SC" <?php echo ($pref && $pref['caste']=='SC')?'selected':''; ?>>SC</option><option value="ST" <?php echo ($pref && $pref['caste']=='ST')?'selected':''; ?>>ST</option></select></div>
+          <div class="col-md-4"><label class="form-label">Mother Tongue</label><select name="mothertounge" class="form-select"><option value="" <?php echo ($pref && $pref['mothertounge']=='')?'selected':''; ?>>Any</option><option value="Hindi" <?php echo ($pref && $pref['mothertounge']=='Hindi')?'selected':''; ?>>Hindi</option><option value="Marathi" <?php echo ($pref && $pref['mothertounge']=='Marathi')?'selected':''; ?>>Marathi</option><option value="English" <?php echo ($pref && $pref['mothertounge']=='English')?'selected':''; ?>>English</option><option value="Tamil" <?php echo ($pref && $pref['mothertounge']=='Tamil')?'selected':''; ?>>Tamil</option><option value="Telugu" <?php echo ($pref && $pref['mothertounge']=='Telugu')?'selected':''; ?>>Telugu</option><option value="Malayalam" <?php echo ($pref && $pref['mothertounge']=='Malayalam')?'selected':''; ?>>Malayalam</option></select></div>
         </div>
       </div>
 
       <div class="em-form-section">
         <h4><i class="fas fa-briefcase"></i> Lifestyle & Career</h4>
         <div class="row g-3">
-          <div class="col-md-3"><label class="form-label">Complexion</label><select name="colour" class="form-select"><option value="">Any</option><option value="Fair">Fair</option><option value="Wheatish">Wheatish</option><option value="Dark">Dark</option></select></div>
-          <div class="col-md-3"><label class="form-label">Diet</label><select name="diet" class="form-select"><option value="">Any</option><option value="Veg">Vegetarian</option><option value="Non Veg">Non-Veg</option></select></div>
-          <div class="col-md-3"><label class="form-label">Education</label><select name="education" class="form-select"><option value="">Any</option><option value="10th">10th</option><option value="12th">12th</option><option value="Degree">Degree</option><option value="PG">PG</option><option value="Doctorate">Doctorate</option></select></div>
-          <div class="col-md-3"><label class="form-label">Country</label><select name="country" class="form-select"><option value="">Any</option><option value="India">India</option><option value="USA">USA</option><option value="UK">UK</option><option value="UAE">UAE</option><option value="Canada">Canada</option></select></div>
+          <div class="col-md-3"><label class="form-label">Complexion</label><select name="colour" class="form-select"><option value="" <?php echo ($pref && $pref['complexion']=='')?'selected':''; ?>>Any</option><option value="Fair" <?php echo ($pref && $pref['complexion']=='Fair')?'selected':''; ?>>Fair</option><option value="Wheatish" <?php echo ($pref && $pref['complexion']=='Wheatish')?'selected':''; ?>>Wheatish</option><option value="Dark" <?php echo ($pref && $pref['complexion']=='Dark')?'selected':''; ?>>Dark</option></select></div>
+          <div class="col-md-3"><label class="form-label">Diet</label><select name="diet" class="form-select"><option value="" <?php echo ($pref && $pref['diet']=='')?'selected':''; ?>>Any</option><option value="Veg" <?php echo ($pref && $pref['diet']=='Veg')?'selected':''; ?>>Vegetarian</option><option value="Non Veg" <?php echo ($pref && $pref['diet']=='Non Veg')?'selected':''; ?>>Non-Veg</option></select></div>
+          <div class="col-md-3"><label class="form-label">Education</label><select name="education" class="form-select"><option value="" <?php echo ($pref && $pref['education']=='')?'selected':''; ?>>Any</option><option value="10th" <?php echo ($pref && $pref['education']=='10th')?'selected':''; ?>>10th</option><option value="12th" <?php echo ($pref && $pref['education']=='12th')?'selected':''; ?>>12th</option><option value="Degree" <?php echo ($pref && $pref['education']=='Degree')?'selected':''; ?>>Degree</option><option value="PG" <?php echo ($pref && $pref['education']=='PG')?'selected':''; ?>>PG</option><option value="Doctorate" <?php echo ($pref && $pref['education']=='Doctorate')?'selected':''; ?>>Doctorate</option></select></div>
+          <div class="col-md-3"><label class="form-label">Country</label><select name="country" class="form-select"><option value="" <?php echo ($pref && $pref['country']=='')?'selected':''; ?>>Any</option><option value="India" <?php echo ($pref && $pref['country']=='India')?'selected':''; ?>>India</option><option value="USA" <?php echo ($pref && $pref['country']=='USA')?'selected':''; ?>>USA</option><option value="UK" <?php echo ($pref && $pref['country']=='UK')?'selected':''; ?>>UK</option><option value="UAE" <?php echo ($pref && $pref['country']=='UAE')?'selected':''; ?>>UAE</option><option value="Canada" <?php echo ($pref && $pref['country']=='Canada')?'selected':''; ?>>Canada</option></select></div>
           <div class="col-12">
             <label class="form-label">Occupation Preference</label>
             <input type="text" name="occupation" class="form-control" value="<?php echo $pref ? h($pref['occupation']) : ''; ?>" placeholder="e.g. Engineer, Doctor, Any">

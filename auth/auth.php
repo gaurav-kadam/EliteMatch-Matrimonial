@@ -14,7 +14,10 @@ $mypassword = $_POST['password'];
 $stmt = mysqli_prepare($conn, "SELECT id, username, password FROM users WHERE username = ?");
 
 if(!$stmt){
-    die("SQL Error: " . mysqli_error($conn));
+    error_log("[EliteMatch] Login query prepare failed: " . mysqli_error($conn));
+    $_SESSION['login_error'] = "We couldn't sign you in right now. Please try again.";
+    header("Location: ../login.php");
+    exit();
 }
 
 mysqli_stmt_bind_param($stmt, "s", $myusername);

@@ -34,8 +34,8 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <h5>Contact Info</h5>
         <ul class="em-footer-links">
-          <li><i class="fas fa-map-marker-alt me-2" style="color: #EC4899;"></i> Shivaji Nagar, Pune, India</li>
-          <li><i class="fas fa-phone me-2" style="color: #EC4899;"></i> +91 74998 89437</li>
+          <li><i class="fas fa-map-marker-alt me-2" style="color: #EC4899;"></i>RamWadi, Nashik, India</li>
+          <li><i class="fas fa-phone me-2" style="color: #EC4899;"></i> +91 93596 62577</li>
           <li><i class="fas fa-envelope me-2" style="color: #EC4899;"></i> support@elitematch.com</li>
           <li><i class="fas fa-clock me-2" style="color: #EC4899;"></i> 24/7 Customer Support</li>
         </ul>

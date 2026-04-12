@@ -5,6 +5,8 @@ if(!isloggedin()){
   header("location:login.php");
   exit;
 }
+$currentUserId = intval($_SESSION['id']);
+$flashMessage = popFlashMessage();
 $result = searchid();
 ?>
 <!DOCTYPE html>
@@ -31,6 +33,11 @@ $result = searchid();
 
 <div class="em-form-page">
   <div class="container" style="max-width: 600px;">
+    <?php if($flashMessage): ?>
+    <div class="alert alert-<?php echo h($flashMessage['type']); ?> mb-4">
+      <i class="fas fa-circle-info me-2"></i><?php echo h($flashMessage['message']); ?>
+    </div>
+    <?php endif; ?>
     <div class="em-form-section text-center">
       <h4 style="justify-content:center;"><i class="fas fa-search"></i> Enter Profile ID</h4>
       <form action="" method="post">
@@ -49,12 +56,9 @@ $result = searchid();
     <div class="mt-4">
       <?php while($row = mysqli_fetch_assoc($result)):
         $profid = intval($row['cust_id']);
-        $sql2 = "SELECT pic1 FROM photos WHERE cust_id=$profid";
-        $r2 = mysqlexec($sql2);
-        $pic = "https://ui-avatars.com/api/?name=".urlencode($row['firstname'])."&background=8B5CF6&color=fff";
-        if($r2 && $p = mysqli_fetch_assoc($r2)){
-          if(!empty($p['pic1'])) $pic = "profile/$profid/".$p['pic1'];
-        }
+        $displayName = getDisplayName($row);
+        $pic = getProfilePhotoUrl($profid, $row['pic1'] ?? '', $displayName);
+        $interactionState = getInteractionState($currentUserId, $profid);
       ?>
       <div class="em-profile-card">
         <div class="row g-0 align-items-center">
@@ -64,11 +68,35 @@ $result = searchid();
           <div class="col-md-8">
             <div class="card-body">
               <span class="profile-id">ID: EM<?php echo $profid; ?></span>
-              <h5><?php echo h($row['firstname']) . ' ' . h($row['lastname']); ?></h5>
+              <h5><?php echo h($displayName); ?></h5>
               <p><i class="fas fa-birthday-cake"></i> <?php echo h($row['age']); ?> Years</p>
               <p><i class="fas fa-pray"></i> <?php echo h($row['religion']); ?></p>
               <p><i class="fas fa-map-marker-alt"></i> <?php echo h($row['state']).', '.h($row['country']); ?></p>
-              <a href="view_profile.php?id=<?php echo $profid; ?>" class="btn-view mt-2">View Full Profile</a>
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <a href="view_profile.php?id=<?php echo $profid; ?>" class="btn-view">View Full Profile</a>
+                <?php if($profid === $currentUserId): ?>
+                <span class="em-badge em-badge-primary"><i class="fas fa-user"></i>Your Profile</span>
+                <?php elseif($interactionState['can_chat']): ?>
+                <a href="chat.php?user=<?php echo $profid; ?>" class="btn btn-outline-primary rounded-pill px-3">
+                  <i class="fas fa-comments me-2"></i>Chat
+                </a>
+                <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'outgoing'): ?>
+                <span class="em-badge em-badge-warm"><i class="fas fa-hourglass-half"></i>Interest Sent</span>
+                <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'incoming'): ?>
+                <a href="requests.php" class="btn btn-outline-success rounded-pill px-3">
+                  <i class="fas fa-envelope-open-text me-2"></i>Respond
+                </a>
+                <?php else: ?>
+                <form action="send_interest.php" method="post" class="d-inline">
+                  <?php echo renderCsrfField(); ?>
+                  <input type="hidden" name="profile_id" value="<?php echo $profid; ?>">
+                  <input type="hidden" name="redirect_to" value="view_profile.php?id=<?php echo $profid; ?>">
+                  <button type="submit" class="btn btn-outline-danger rounded-pill px-3">
+                    <i class="fas fa-heart me-2"></i>Send Interest
+                  </button>
+                </form>
+                <?php endif; ?>
+              </div>
             </div>
           </div>
         </div>

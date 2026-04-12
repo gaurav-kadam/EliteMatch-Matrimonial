@@ -18,7 +18,9 @@ $userData = mysqli_fetch_assoc($userResult);
 $username = $userData ? h($userData['username']) : 'User';
 
 $completeness = getProfileCompleteness($id);
-$interestsCount = getInterestsCount($id);
+$pendingRequests = getPendingRequestCount($id);
+$acceptedConnections = getAcceptedConnectionCount($id);
+$potentialMatches = getPotentialMatchCount($id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,8 +43,8 @@ $interestsCount = getInterestsCount($id);
     <div class="em-welcome-banner">
       <h2><i class="fas fa-sparkles me-2"></i>Welcome back, <?php echo $username; ?>!</h2>
       <p>Manage your profile and discover your perfect match</p>
-      <div class="row mt-3" style="position:relative; z-index:2;">
-        <div class="col-md-4">
+      <div class="row mt-3 g-3" style="position:relative; z-index:2;">
+        <div class="col-lg-3 col-md-6">
           <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 1rem; text-align: center;">
             <h4 style="margin:0; font-weight:800;"><?php echo $completeness; ?>%</h4>
             <small>Profile Complete</small>
@@ -51,16 +53,22 @@ $interestsCount = getInterestsCount($id);
             </div>
           </div>
         </div>
-        <div class="col-md-4 mt-2 mt-md-0">
+        <div class="col-lg-3 col-md-6">
           <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 1rem; text-align: center;">
-            <h4 style="margin:0; font-weight:800;"><?php echo $interestsCount; ?></h4>
-            <small>Interests Received</small>
+            <h4 style="margin:0; font-weight:800;"><?php echo $pendingRequests; ?></h4>
+            <small>Pending Requests</small>
           </div>
         </div>
-        <div class="col-md-4 mt-2 mt-md-0">
+        <div class="col-lg-3 col-md-6">
           <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 1rem; text-align: center;">
-            <h4 style="margin:0; font-weight:800;">EM<?php echo $id; ?></h4>
-            <small>Your Profile ID</small>
+            <h4 style="margin:0; font-weight:800;"><?php echo $acceptedConnections; ?></h4>
+            <small>Chat Connections</small>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+            <h4 style="margin:0; font-weight:800;"><?php echo $potentialMatches; ?></h4>
+            <small>Suggested Matches</small>
           </div>
         </div>
       </div>
@@ -94,6 +102,20 @@ $interestsCount = getInterestsCount($id);
           <i class="fas fa-search"></i>
           <h5>Search Profiles</h5>
           <p>Find your perfect match</p>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <a href="matches.php" class="em-action-card">
+          <i class="fas fa-heart-circle-check"></i>
+          <h5>View Matches</h5>
+          <p>See profiles matched to your preferences</p>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <a href="requests.php" class="em-action-card">
+          <i class="fas fa-envelope-open-text"></i>
+          <h5>Interest Requests</h5>
+          <p><?php echo $pendingRequests; ?> pending and <?php echo $acceptedConnections; ?> chat-ready connections</p>
         </a>
       </div>
     </div>

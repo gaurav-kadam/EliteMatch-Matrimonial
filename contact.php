@@ -30,14 +30,14 @@
         <div class="em-contact-card">
           <i class="fas fa-map-marker-alt"></i>
           <h5>Our Office</h5>
-          <p>123 Business Park, Andheri East,<br>Mumbai, Maharashtra 400069</p>
+          <p>123 Business Park, Andheri East,<br>Nashik, Maharashtra 400069</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="em-contact-card">
           <i class="fas fa-phone-alt"></i>
           <h5>Call Us</h5>
-          <p>+91 98765 43210<br>+91 22 2345 6789<br><small>(Mon-Sat, 9am-8pm)</small></p>
+          <p>+91 93596 62577<br>+91 12345 67890<br><small>(Mon-Sat, 9am-8pm)</small></p>
         </div>
       </div>
       <div class="col-md-4">
@@ -58,15 +58,15 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Your Name</label>
-                <input type="text" class="form-control" placeholder="John Doe" required>
+                <input type="text" class="form-control" placeholder="Raj patil" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Your Email</label>
-                <input type="email" class="form-control" placeholder="john@example.com" required>
+                <input type="email" class="form-control" placeholder="raj@example.com" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" placeholder="+91 98765 43210">
+                <input type="tel" class="form-control" placeholder="+91 93596 62577">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Subject</label>

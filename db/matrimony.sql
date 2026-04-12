@@ -150,14 +150,30 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `interests` (
 `id` int(10) NOT NULL AUTO_INCREMENT,
-  `from_user` int(10) NOT NULL,
-  `to_user` int(10) NOT NULL,
+  `sender_id` int(10) NOT NULL,
+  `receiver_id` int(10) NOT NULL,
   `status` enum('pending','accepted','rejected') NOT NULL DEFAULT 'pending',
-  `icebreaker_msg` text DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_interest` (`from_user`, `to_user`),
-  KEY `to_user` (`to_user`)
+  UNIQUE KEY `unique_interest` (`sender_id`, `receiver_id`),
+  KEY `idx_interest_receiver_status` (`receiver_id`, `status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE IF NOT EXISTS `messages` (
+`id` int(10) NOT NULL AUTO_INCREMENT,
+  `sender_id` int(10) NOT NULL,
+  `receiver_id` int(10) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_message_pair` (`sender_id`, `receiver_id`),
+  KEY `idx_message_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

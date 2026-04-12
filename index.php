@@ -63,25 +63,17 @@
     </div>
     <div class="row g-4">
       <?php
-      $sql = "SELECT * FROM customer ORDER BY profilecreationdate DESC LIMIT 8";
-      $result = mysqlexec($sql);
+      $result = getFeaturedProfiles(8);
       if($result){
         while($row = mysqli_fetch_assoc($result)){
-          $name = h($row['firstname']) . " " . h($row['lastname']);
+          $displayName = getDisplayName($row);
+          $name = h($displayName);
           $profileid = intval($row['cust_id']);
           $age = h($row['age']);
           $place = h($row['state']) . ", " . h($row['country']);
           $job = h($row['occupation']);
           $religion = h($row['religion']);
-
-          $pic1 = 'images/default-avatar.png';
-          $sql2 = "SELECT pic1 FROM photos WHERE cust_id = " . $profileid;
-          $result2 = mysqlexec($sql2);
-          if($result2 && $row2 = mysqli_fetch_array($result2)){
-            if(!empty($row2['pic1'])){
-              $pic1 = "profile/{$profileid}/{$row2['pic1']}";
-            }
-          }
+          $pic1 = getProfilePhotoUrl($profileid, $row['pic1'] ?? '', $displayName);
       ?>
       <div class="col-xl-3 col-lg-4 col-md-6">
         <div class="em-profile-card">

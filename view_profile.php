@@ -9,23 +9,19 @@ if(!isloggedin()){
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $profileid = $id;
 $myId = intval($_SESSION['id']);
-
-// Handle Express Interest
-if(isset($_POST['express_interest']) && $myId != $id){
-  $interestResult = expressInterest($myId, $id);
-}
+$profileExists = false;
+$pref = null;
+$pic1 = $pic2 = $pic3 = $pic4 = "";
+$flashMessage = popFlashMessage();
+$interactionState = null;
 
 // Get profile details
-$conn = getConn();
-$stmt = mysqli_prepare($conn, "SELECT * FROM customer WHERE cust_id = ?");
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$profileExists = false;
-
-if($result && mysqli_num_rows($result) > 0){
+if($id > 0){
+  $row = getCustomerProfile($id, $id !== $myId);
+  if($row){
   $profileExists = true;
-  $row = mysqli_fetch_assoc($result);
+  $displayName = getDisplayName($row);
+  $escapedDisplayName = h($displayName);
   $fname = h($row['firstname']);
   $lname = h($row['lastname']);
   $sex = h($row['sex']);
@@ -61,27 +57,23 @@ if($result && mysqli_num_rows($result) > 0){
   $sis = h($row['no_sis']);
   $aboutme = h($row['aboutme']);
 
-  $pic1=$pic2=$pic3=$pic4="";
-  $stmt2 = mysqli_prepare($conn, "SELECT * FROM photos WHERE cust_id = ?");
-  mysqli_stmt_bind_param($stmt2, "i", $profileid);
-  mysqli_stmt_execute($stmt2);
-  $result2 = mysqli_stmt_get_result($stmt2);
-  if($result2 && $row2 = mysqli_fetch_array($result2)){
+  $row2 = dbFetchOne("SELECT * FROM photos WHERE cust_id = ?", "i", array($profileid));
+  if($row2){
     $pic1=$row2['pic1']; $pic2=$row2['pic2']; $pic3=$row2['pic3']; $pic4=$row2['pic4'];
   }
 
-  // Get partner prefs
-  $stmt3 = mysqli_prepare($conn, "SELECT * FROM partnerprefs WHERE custId = ?");
-  mysqli_stmt_bind_param($stmt3, "i", $id);
-  mysqli_stmt_execute($stmt3);
-  $result3 = mysqli_stmt_get_result($stmt3);
-  $pref = mysqli_fetch_assoc($result3);
+  $pref = getPartnerPreferences($id, false);
+  $heroPhoto = getProfilePhotoUrl($profileid, $pic1, $displayName);
+  if($myId !== $id){
+    $interactionState = getInteractionState($myId, $id);
+  }
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title><?php echo $profileExists ? "$fname $lname - Profile" : "Profile"; ?> | EliteMatch</title>
+<title><?php echo $profileExists ? $escapedDisplayName . " - Profile" : "Profile"; ?> | EliteMatch</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -92,6 +84,14 @@ if($result && mysqli_num_rows($result) > 0){
 <body>
 
 <?php include_once("includes/navigation.php");?>
+
+<?php if($flashMessage): ?>
+<div class="container pt-4">
+  <div class="alert alert-<?php echo h($flashMessage['type']); ?>">
+    <i class="fas fa-circle-info me-2"></i><?php echo h($flashMessage['message']); ?>
+  </div>
+</div>
+<?php endif; ?>
 
 <?php if(!$profileExists): ?>
 <div class="em-profile-page">
@@ -110,26 +110,37 @@ if($result && mysqli_num_rows($result) > 0){
   <div class="container">
     <!-- Profile Hero -->
     <div class="em-profile-hero">
-      <img src="<?php echo !empty($pic1) ? "profile/$profileid/" . rawurlencode($pic1) : 'https://ui-avatars.com/api/?name='.urlencode("$fname $lname").'&background=8B5CF6&color=fff&size=200'; ?>" alt="<?php echo "$fname $lname"; ?>" class="em-profile-avatar">
+      <img src="<?php echo $heroPhoto; ?>" alt="<?php echo $escapedDisplayName; ?>" class="em-profile-avatar">
       <div class="em-profile-hero-info">
         <span class="profile-id-badge"><i class="fas fa-id-badge me-1"></i> EM<?php echo $profileid; ?></span>
-        <h2><?php echo "$fname $lname"; ?></h2>
+        <h2><?php echo $escapedDisplayName; ?></h2>
         <p><i class="fas fa-birthday-cake"></i> <?php echo $age; ?> Years | <?php echo $sex; ?></p>
         <p><i class="fas fa-map-marker-alt"></i> <?php echo "$district, $state, $country"; ?></p>
         <p><i class="fas fa-pray"></i> <?php echo "$religion - $caste"; ?></p>
-        <?php if($myId != $id): ?>
-        <form method="post" style="display:inline;">
-          <button type="submit" name="express_interest" class="btn-interest">
-            <i class="fas fa-heart"></i> Express Interest
-          </button>
-        </form>
-        <?php if(isset($interestResult)): ?>
-          <?php if($interestResult == 'success'): ?>
-            <span class="em-badge em-badge-success ms-2" style="font-size:0.9rem; padding:8px 16px;"><i class="fas fa-check me-1"></i> Interest Sent!</span>
-          <?php elseif($interestResult == 'already_sent'): ?>
-            <span class="em-badge em-badge-warm ms-2" style="font-size:0.9rem; padding:8px 16px;"><i class="fas fa-info-circle me-1"></i> Already Sent</span>
+        <?php if($myId != $id && $interactionState): ?>
+          <?php if($interactionState['can_chat']): ?>
+          <a href="chat.php?user=<?php echo $id; ?>" class="btn-interest">
+            <i class="fas fa-comments"></i> Chat Now
+          </a>
+          <span class="em-badge em-badge-success ms-2" style="font-size:0.9rem; padding:8px 16px;"><i class="fas fa-check me-1"></i> Request Accepted</span>
+          <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'outgoing'): ?>
+          <span class="em-badge em-badge-warm mt-3" style="font-size:0.9rem; padding:10px 16px;"><i class="fas fa-hourglass-half me-1"></i> Interest Sent</span>
+          <?php elseif($interactionState['status'] === 'pending' && $interactionState['direction'] === 'incoming'): ?>
+          <a href="requests.php" class="btn-interest">
+            <i class="fas fa-envelope-open-text"></i> Respond to Request
+          </a>
+          <?php elseif($interactionState['status'] === 'rejected' && $interactionState['direction'] === 'outgoing'): ?>
+          <span class="em-badge em-badge-warm mt-3" style="font-size:0.9rem; padding:10px 16px;"><i class="fas fa-ban me-1"></i> Request Rejected</span>
+          <?php else: ?>
+          <form action="send_interest.php" method="post" style="display:inline;">
+            <?php echo renderCsrfField(); ?>
+            <input type="hidden" name="profile_id" value="<?php echo $id; ?>">
+            <input type="hidden" name="redirect_to" value="view_profile.php?id=<?php echo $id; ?>">
+            <button type="submit" class="btn-interest">
+              <i class="fas fa-heart"></i> Send Interest
+            </button>
+          </form>
           <?php endif; ?>
-        <?php endif; ?>
         <?php endif; ?>
       </div>
     </div>
@@ -274,7 +285,7 @@ if($result && mysqli_num_rows($result) > 0){
               <?php foreach([$pic1,$pic2,$pic3,$pic4] as $pic): ?>
               <?php if(!empty($pic)): ?>
               <div class="col-6">
-                <img src="profile/<?php echo $profileid; ?>/<?php echo rawurlencode($pic); ?>" alt="Photo" style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius-sm);">
+                <img src="profile/<?php echo $profileid; ?>/<?php echo rawurlencode($pic); ?>" alt="<?php echo $escapedDisplayName; ?>" style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius-sm);">
               </div>
               <?php endif; ?>
               <?php endforeach; ?>
@@ -288,17 +299,17 @@ if($result && mysqli_num_rows($result) > 0){
           <div class="card-header-custom"><i class="fas fa-clock"></i> Recent Profiles</div>
           <div class="card-body-custom">
             <?php
-            $sqlRecent = "SELECT c.*, p.pic1 FROM customer c LEFT JOIN photos p ON c.cust_id = p.cust_id ORDER BY c.profilecreationdate DESC LIMIT 5";
-            $resRecent = mysqlexec($sqlRecent);
+            $resRecent = getRecentProfiles(5);
             if($resRecent){
               while($rp = mysqli_fetch_assoc($resRecent)){
                 $rpId = intval($rp['cust_id']);
-                $rpPic = !empty($rp['pic1']) ? "profile/$rpId/".$rp['pic1'] : "https://ui-avatars.com/api/?name=".urlencode($rp['firstname'])."&background=8B5CF6&color=fff&size=50";
+                $recentName = getDisplayName($rp);
+                $rpPic = getProfilePhotoUrl($rpId, $rp['pic1'] ?? '', $recentName);
             ?>
             <a href="view_profile.php?id=<?php echo $rpId; ?>" style="display:flex; align-items:center; gap:12px; padding:10px; border-radius:var(--radius-sm); transition:var(--transition); margin-bottom:8px; text-decoration:none; color:inherit;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'">
               <img src="<?php echo $rpPic; ?>" alt="" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
               <div>
-                <h6 style="margin:0; font-size:0.9rem; font-weight:600; color:var(--dark);"><?php echo h($rp['firstname']); ?></h6>
+                <h6 style="margin:0; font-size:0.9rem; font-weight:600; color:var(--dark);"><?php echo h($recentName); ?></h6>
                 <small style="color:var(--gray-500);"><?php echo h($rp['age']); ?> Yrs, <?php echo h($rp['religion']); ?></small>
               </div>
             </a>

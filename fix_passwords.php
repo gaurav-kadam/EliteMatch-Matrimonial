@@ -1,23 +1,19 @@
 <?php
 // Temporary script to fix truncated passwords
-require_once("includes/dbconn.php");
+require_once("functions.php");
 
 // Reset admin password to 'admin123'
 $adminHash = password_hash('admin123', PASSWORD_DEFAULT);
-$stmt = mysqli_prepare($conn, "UPDATE users SET password = ? WHERE username = 'admin'");
-mysqli_stmt_bind_param($stmt, "s", $adminHash);
-mysqli_stmt_execute($stmt);
+dbExecute("UPDATE users SET password = ? WHERE username = ?", "ss", array($adminHash, 'admin'));
 echo "Admin password reset. Length: " . strlen($adminHash) . "<br>";
 
 // Reset Gaurav password to 'Gaurav' (or a default)
 $gauravHash = password_hash('Gaurav', PASSWORD_DEFAULT);
-$stmt2 = mysqli_prepare($conn, "UPDATE users SET password = ? WHERE username = 'Gaurav'");
-mysqli_stmt_bind_param($stmt2, "s", $gauravHash);
-mysqli_stmt_execute($stmt2);
+dbExecute("UPDATE users SET password = ? WHERE username = ?", "ss", array($gauravHash, 'Gaurav'));
 echo "Gaurav password reset. Length: " . strlen($gauravHash) . "<br>";
 
 // Verify
-$result = mysqli_query($conn, "SELECT id, username, LENGTH(password) as pass_length FROM users");
+$result = dbSelect("SELECT id, username, LENGTH(password) as pass_length FROM users");
 echo "<br>Updated users:<br>";
 while($row = mysqli_fetch_assoc($result)){
     echo "ID: {$row['id']} | Username: {$row['username']} | Password length: {$row['pass_length']}<br>";
