@@ -41,7 +41,7 @@ $potentialMatches = getPotentialMatchCount($id);
   <div class="container">
     <!-- Welcome Banner -->
     <div class="em-welcome-banner">
-      <h2><i class="fas fa-sparkles me-2"></i>Welcome back, <?php echo $username; ?>!</h2>
+      <h2><i class="fas fa-sparkles me-2"></i>Welcome <?php echo $username; ?>!</h2>
       <p>Manage your profile and discover your perfect match</p>
       <div class="row mt-3 g-3" style="position:relative; z-index:2;">
         <div class="col-lg-3 col-md-6">

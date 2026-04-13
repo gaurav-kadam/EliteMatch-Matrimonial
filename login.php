@@ -31,7 +31,7 @@ if(isset($_SESSION['login_error'])){
     <div class="text-center mb-3">
       <i class="fas fa-heart" style="font-size: 2.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
     </div>
-    <h2>Welcome Back!</h2>
+    <h2>Welcome</h2>
     <p class="auth-subtitle">Sign in to your EliteMatch account</p>
     
     <?php if(!empty($loginError)): ?>

@@ -155,7 +155,7 @@
             <img src="images/7.jpg" alt="Couple" class="story-avatar" onerror="this.src='https://ui-avatars.com/api/?name=R+S&background=8B5CF6&color=fff'">
             <div class="story-meta">
               <h5>Rahul & Sneha</h5>
-              <span>Married Dec 2024</span>
+              <span>Married Dec 2025</span>
             </div>
           </div>
           <p>"We found each other on EliteMatch and instantly connected over shared values and dreams. The platform made it so easy to find someone truly compatible. We're now happily married!"</p>
@@ -168,7 +168,7 @@
             <img src="images/8.jpg" alt="Couple" class="story-avatar" onerror="this.src='https://ui-avatars.com/api/?name=A+P&background=EC4899&color=fff'">
             <div class="story-meta">
               <h5>Amit & Priya</h5>
-              <span>Married Oct 2024</span>
+              <span>Married jan 2026</span>
             </div>
           </div>
           <p>"Thanks to EliteMatch's detailed profiles and smart matching, we discovered we had so much in common. From our first conversation to our wedding, it was a beautiful journey."</p>
@@ -181,7 +181,7 @@
             <img src="images/9.jpg" alt="Couple" class="story-avatar" onerror="this.src='https://ui-avatars.com/api/?name=V+N&background=F59E0B&color=fff'">
             <div class="story-meta">
               <h5>Vikram & Neha</h5>
-              <span>Married Aug 2024</span>
+              <span>Married mar 2026</span>
             </div>
           </div>
           <p>"We're grateful to EliteMatch for bringing us together. The partner preference matching was incredibly accurate. We couldn't be happier with our life together!"</p>
